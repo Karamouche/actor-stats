@@ -1,7 +1,7 @@
 {
   "name": "actor-stats",
   "version": "1.0.0",
-  "description": "Some statistics on actor (data before June 2017)",
+  "description": "Some statistics on actor (data from 1915 to 2017)",
   "main": "index.js",
   "scripts": {
     "main": "node index.js",

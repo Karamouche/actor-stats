@@ -1,6 +1,8 @@
 # Welcome to the actor-stats repo !
 
 actor-stats is a javascript node program that give us some statistics about actor and films from a dataset.
+The dataset is a json file that contains a list of films (from 1915 to 2017) and the actors that played in it.
+Other informations are also available like the genre, the profit, the rating, etc.
 
 ---
 
