@@ -1,21 +1,20 @@
 const R = require('ramda');
 const fs = require('fs');
 
+const dataPath = 'data/movies_database.json';
+
 const openJson = R.pipe(
 	fs.readFileSync,
 	JSON.parse
 );
+
+const moviesData = openJson(dataPath);
 
 const getMovieTitle = R.pipe(
 	R.prop('title'),
 );
 
 const getMoviesTitles = R.pipe(
-	R.map(getMovieTitle)
-);
-
-//get movies title
-const movies_title = R.pipe(
 	R.map(getMovieTitle)
 );
 
@@ -41,18 +40,57 @@ const getMostPresentActor = R.pipe(
 	R.toPairs,
 	R.sortBy(R.last),
 	R.reverse
-);
+)(moviesData);
 
-const logTenMostPresentActors = R.pipe(
+const logMostPresentActors = amount => R.pipe(
 	getMostPresentActor,
-	R.slice(0, 10),
+	R.slice(0, amount),
 	R.map(R.join(' with ')),
 	R.map(R.flip(R.concat)(' appearances')),
-	R.tap(console.log),
-	R.join(", "),
+	R.join("\n"),
 	console.log
 );
 
-const dataPath = 'data/movies_database.json';
-const moviesData = openJson(dataPath);
-logTenMostPresentActors(moviesData);
+//gest a list of movies from an actor
+const getMoviesFromActor = actor => R.pipe(
+	R.filter(R.pipe(
+		R.prop('cast'),
+		R.includes(actor)
+	)),
+	R.map(R.prop('title'))
+);
+
+//get a list of actors wich have the best profit average
+const getMostBankableActors = R.pipe(
+	R.map(R.prop('cast')),
+	R.flatten,
+	R.uniq,
+	R.map(actor => ({
+		actor,
+		averageProfit: R.pipe(
+			R.filter(R.pipe(
+				R.prop('cast'),
+				R.includes(actor)
+			)),
+			R.map(R.prop('profit')),
+			R.mean
+		)(moviesData)
+	})),
+	R.sortBy(R.prop('averageProfit')),
+	R.reverse,
+	R.map(R.props(['actor', 'averageProfit'])),
+	R.map(R.map(String))
+);
+
+const logMostBankableActors = amount => R.pipe(
+
+	getMostBankableActors,
+	R.slice(0, amount),
+	R.map(R.join(' with ')),
+	R.map(R.flip(R.concat)(' average profit')),
+	R.join("\n"),
+	console.log
+)(moviesData);
+
+console.log("Top 10 of most bankable actors :")
+logMostBankableActors(10);
