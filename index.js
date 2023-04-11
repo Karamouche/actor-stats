@@ -35,11 +35,14 @@ const sortByBudget = R.pipe(
 	R.reverse
 );
 
+const sortByYear = R.pipe(
+	R.sortBy(R.prop('year'))
+);
+
 
 const formatPriceDollars = R.pipe(
 	R.toString,
 	R.split(''),
-	R.tap(console.log),
 	R.reverse,
 	R.splitEvery(3),
 	R.map(R.reverse),
@@ -47,6 +50,24 @@ const formatPriceDollars = R.pipe(
 	R.reverse,
 	R.join("'"),
 	R.flip(R.concat)('$')
+);
+
+
+// return a list of movie information with format: "title (year) - revenue"
+
+const formatMovieInformation = R.map(
+	R.pipe(
+		R.props(['title', 'year', 'revenue']),
+		R.adjust(1, R.pipe(
+			R.toString,
+			R.concat('('),
+			R.flip(R.concat)(')')
+		)),
+		R.adjust(2, formatPriceDollars),
+		R.adjust(1, R.flip(R.concat)(' - ')),
+		R.join(' '),
+		R.flip(R.concat)(' revenue')
+	)
 );
 
 
@@ -60,23 +81,26 @@ const filterYear = yearInterval => R.filter(
 );
 
 
-const getMostPresentActor = R.pipe(
+const getMostPresentActor = (yearInterval) => R.pipe(
+	filterYear(yearInterval),
 	R.map(R.prop('cast')),
 	R.flatten,
 	R.countBy(R.identity),
 	R.toPairs,
 	R.sortBy(R.last),
 	R.reverse
-)(moviesData);
+);
 
-const logMostPresentActors = amount => R.pipe(
-	getMostPresentActor,
+
+const logMostPresentActors = (amount, yearInterval = [1915, 2017]) => R.pipe(
+	getMostPresentActor(yearInterval),
 	R.slice(0, amount),
 	R.map(R.join(' with ')),
 	R.map(R.flip(R.concat)(' appearances')),
 	R.join("\n"),
 	console.log
-);
+)(moviesData);
+
 
 //gest a list of movies from an actor
 const getMoviesFromActor = actor => R.filter(
@@ -85,6 +109,7 @@ const getMoviesFromActor = actor => R.filter(
 		R.includes(actor)
 	)
 );
+
 
 //get a list of actors wich have the best profit average between a year interval
 const getMostBankableActors = (yearInterval = [1915, 2017]) => R.pipe(
@@ -105,14 +130,32 @@ const getMostBankableActors = (yearInterval = [1915, 2017]) => R.pipe(
 	R.map(R.props(['actor', 'averageProfit']))
 );
 
+
 const logMostBankableActors = (amount, yearInterval = [1915, 2017]) => R.pipe(
 	getMostBankableActors(yearInterval),
 	R.slice(0, amount),
 	R.map(R.adjust(1, formatPriceDollars)),
-	R.tap(console.log),
 	R.map(R.join(' with ')),
 	R.map(R.flip(R.concat)(' average profit')),
 	R.join("\n"),
 	console.log
 )(moviesData);
 
+const main = () => {
+	console.log("Movies from Harrison Ford between 1960 and 1995:");
+	const moviesHarrisonFord = R.pipe(
+		getMoviesFromActor('Harrison Ford'),
+		filterYear([1960, 1995]),
+		sortByYear,
+		formatMovieInformation
+	)(moviesData);
+	console.log(moviesHarrisonFord.join("\n"));
+	console.log("\n");
+	console.log("Top 5 most bankable actors between 2000 and 2010:");
+	logMostBankableActors(5, [2000, 2010]);
+	console.log("\n");
+	console.log("Top 10 most present actors in cinema in 2000:");
+	logMostPresentActors(10, [2000, 2000]);
+}
+
+main();
