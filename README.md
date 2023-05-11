@@ -61,6 +61,10 @@ const moviesHarrisonFord = R.pipe(
 console.log(moviesHarrisonFord.join("\n"));
 ```
 
+## Credits
+
+The dataset used was provided by [Kaggle](https://www.kaggle.com/rounakbanik/the-movies-dataset).
+
 ## Contributors
 
 This project was created by Karamouche and ArRegulus. Feel free to contribute by opening a pull request or submitting an issue.
