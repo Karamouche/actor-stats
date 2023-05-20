@@ -52,13 +52,13 @@ logMostBankableActors(10, [1980, 2000]);
 Log all movies in which Tom Hanks appears, released between 1980 and 2000, sorted by year of release:
 
 ```javascript
-const moviesHarrisonFord = R.pipe(
+const moviesTomHanks = R.pipe(
 	getMoviesFromActor("Tom Hanks"),
 	filterYear([1980, 2000]),
 	sortByYear,
 	formatMovieInformation
 )(moviesData);
-console.log(moviesHarrisonFord.join("\n"));
+console.log(moviesTomHanks.join("\n"));
 ```
 
 ## Credits
